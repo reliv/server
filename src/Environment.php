@@ -73,10 +73,10 @@ class Environment
         $config = include(self::$localConfigPath);
 
         // Assume default if config not found
-        if (!$config['ServerEnvironment']) {
+        if (!$config['RelivServerEnvironment']) {
             self::$environmentSet = true;
             trigger_error(
-                "Config value 'ServerEnvironment' not set",
+                "Config value 'RelivServerEnvironment' not set",
                 E_USER_WARNING
             );
 
@@ -85,7 +85,7 @@ class Environment
 
         self::$environment = array_merge(
             self::$environment,
-            $config['ServerEnvironment']
+            $config['RelivServerEnvironment']
         );
 
         foreach (self::$environment['initSet'] as $key => $value) {
