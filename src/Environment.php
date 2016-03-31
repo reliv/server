@@ -126,4 +126,21 @@ class Environment
     {
         return (self::$environment['isProduction']);
     }
+
+    /**
+     * get
+     *
+     * @param string     $key
+     * @param null|mixed $default
+     *
+     * @return mixed|null
+     */
+    public static function get($key, $default = null)
+    {
+        if (array_key_exists($key, self::$environment)) {
+            return self::$environment[$key];
+        }
+
+        return $default;
+    }
 }
