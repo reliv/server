@@ -37,15 +37,23 @@ class Environment
      * setLocalConfigPath
      *
      * @param $localConfigPath
-     *
-     * @return void
+     * @param null $env
+     * @throws \Exception
      */
-    public static function setLocalEnvironment($localConfigPath)
+    public static function setLocalEnvironment($localConfigPath, $env = null)
     {
+        if ($env === null) {
+            $env = getenv('ENV');
+        }
+
+        if (empty($env)) {
+            throw new \Exception('ENV is empty');
+        }
+
         if (self::$environmentSet) {
             return;
         }
-        self::$localConfigPath = $localConfigPath;
+        self::$localConfigPath = $localConfigPath . '/' . $env . '.php';
         self::setEnvironment();
     }
 
@@ -130,7 +138,7 @@ class Environment
     /**
      * get
      *
-     * @param string     $key
+     * @param string $key
      * @param null|mixed $default
      *
      * @return mixed|null
