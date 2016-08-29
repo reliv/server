@@ -27,7 +27,7 @@ class Environment
      */
     protected static $environment
         = [
-            'name' => 'prod',
+            'name' => 'production',
             'isProduction' => true,
             'initSet' => [
             ],
