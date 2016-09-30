@@ -230,7 +230,7 @@ class Environment
 
         // @BC Return a default if instance not set
         if (empty(self::$instance)) {
-            return 'UNDEFINED';
+            return $default;
         }
 
         return self::$instance->get($key, $default);
