@@ -62,7 +62,7 @@ class Environment
             return;
         }
 
-        array_merge(
+        $this->options = array_merge(
             $this->options,
             $options
         );
