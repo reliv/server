@@ -15,102 +15,155 @@ class Environment
     /**
      * @var string
      */
+    protected static $configKey = 'RelivServerEnvironment';
+
+    /**
+     * @var string
+     */
     protected static $localConfigPath = '';
 
     /**
-     * @var bool
+     * @var null|\Reliv\Server\Entity\Environment
      */
-    protected static $environmentSet = false;
+    protected static $instance = null;
 
     /**
-     * @var array
-     */
-    protected static $environment
-        = [
-            'name' => 'production',
-            'isProduction' => true,
-            'initSet' => [
-            ],
-        ];
-
-    /**
-     * setLocalConfigPath
+     * getInstance
      *
-     * @param $localConfigPath
-     * @param null $env
-     * @throws \Exception
+     * @return null|\Reliv\Server\Entity\Environment
      */
-    public static function setLocalEnvironment($localConfigPath, $env = null)
+    public static function getInstance()
     {
-        if ($env === null) {
-            $env = getenv('ENV');
-        }
-
-        if (empty($env)) {
-            throw new \Exception('ENV is empty');
-        }
-
-        if (self::$environmentSet) {
-            return;
-        }
-        self::$localConfigPath = $localConfigPath . '/' . $env . '.php';
-        self::setEnvironment();
+        return self::$instance;
     }
 
     /**
-     * setEnvironment
+     * buildInstance
      *
-     * @return void
+     * @param      $localConfigPath
+     * @param null $envName
+     * @param null $configKey
+     *
+     * @return null|Entity\Environment
+     * @throws \Exception
      */
-    public static function setEnvironment()
-    {
-        if (self::$environmentSet) {
-            return;
+    public static function buildInstance(
+        $localConfigPath,
+        $envName = null,
+        $configKey = null
+    ) {
+        if (self::$instance) {
+            return self::$instance;
         }
+
+        if ($envName === null) {
+            $envName = getenv('ENV');
+        }
+
+        if (empty($envName)) {
+            throw new \Exception('ENV is empty');
+        }
+
+        if (!empty($configKey)) {
+            self::$configKey = $configKey;
+        }
+        $configKey = self::$configKey;
+
+        $configPath = $localConfigPath . '/' . $envName . '.php';
+
         // Assume default if config file not found
-        if (!file_exists(self::$localConfigPath)) {
-            self::$environmentSet = true;
+        if (!file_exists($configPath)) {
             trigger_error(
                 'localConfigPath not set',
                 E_USER_WARNING
             );
 
-            return;
+            self::$instance = self::build(
+                $envName,
+                [],
+                $configPath
+            );
+
+            return self::$instance;
         }
 
-        $config = include(self::$localConfigPath);
+        $config = include($configPath);
 
         // Assume default if config not found
-        if (!$config['RelivServerEnvironment']) {
-            self::$environmentSet = true;
+        if (!$config[$configKey]) {
             trigger_error(
-                "Config value 'RelivServerEnvironment' not set",
+                "Config value {$configKey} not set",
                 E_USER_WARNING
             );
 
-            return;
+            self::$instance = self::build(
+                $envName,
+                [],
+                $configPath
+            );
+
+            return self::$instance;
         }
 
-        self::$environment = array_merge(
-            self::$environment,
-            $config['RelivServerEnvironment']
+        self::$instance = self::build(
+            $envName,
+            $config[$configKey],
+            $configPath
         );
 
-        foreach (self::$environment['initSet'] as $key => $value) {
-            ini_set($key, $value);
-        }
-        self::$environmentSet = true;
-
+        return self::$instance;
     }
 
     /**
-     * getEnvironment
+     * build
      *
-     * @return array
+     * @param string $envName
+     * @param array  $config
+     * @param string $configPath
+     *
+     * @return Entity\Environment
      */
-    public static function getEnvironment()
-    {
-        return self::$environment;
+    protected static function build(
+        $envName,
+        array $config,
+        $configPath = null
+    ) {
+        $instance = new \Reliv\Server\Entity\Environment(
+            $envName,
+            $config,
+            $configPath
+        );
+
+        $initSet = $instance->get('initSet', []);
+
+        foreach ($initSet as $key => $value) {
+            ini_set($key, $value);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * @deprecated Use self::buildInstance()
+     * setLocalEnvironment
+     *
+     * @param string $localConfigPath
+     * @param null   $envName
+     * @param null   $configKey
+     *
+     * @return \Reliv\Server\Entity\Environment
+     * @throws \Exception
+     */
+    public static function setLocalEnvironment(
+        $localConfigPath,
+        $envName = null,
+        $configKey = null
+    ) {
+        return self::buildInstance(
+            $localConfigPath,
+            $envName,
+            $configKey
+        );
     }
 
     /**
@@ -122,33 +175,44 @@ class Environment
      */
     public static function isEnvironment($name)
     {
-        return ($name == self::$environment['name']);
+        return self::$instance->isEnvironment($name);
     }
 
     /**
      * isProduction
      *
-     * @return mixed
+     * @return bool
      */
     public static function isProduction()
     {
-        return (self::$environment['isProduction']);
+        return self::$instance->isProduction();
+    }
+
+    /**
+     * getName
+     *
+     * @return string
+     */
+    public static function getName()
+    {
+        return self::$instance->getName();
     }
 
     /**
      * get
      *
-     * @param string $key
+     * @param string     $key
      * @param null|mixed $default
      *
      * @return mixed|null
      */
     public static function get($key, $default = null)
     {
-        if (array_key_exists($key, self::$environment)) {
-            return self::$environment[$key];
+        // @BC
+        if ($key === 'name') {
+            return self::getName();
         }
 
-        return $default;
+        return self::$instance->get($key, $default);
     }
 }
