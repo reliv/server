@@ -175,6 +175,11 @@ class Environment
      */
     public static function isEnvironment($name)
     {
+        // @BC Return a default if instance not set
+        if (empty(self::$instance)) {
+            return false;
+        }
+
         return self::$instance->isEnvironment($name);
     }
 
@@ -185,6 +190,11 @@ class Environment
      */
     public static function isProduction()
     {
+        // @BC Return a default if instance not set
+        if (empty(self::$instance)) {
+            return true;
+        }
+
         return self::$instance->isProduction();
     }
 
@@ -195,6 +205,11 @@ class Environment
      */
     public static function getName()
     {
+        // @BC Return a default if instance not set
+        if (empty(self::$instance)) {
+            return 'UNDEFINED';
+        }
+
         return self::$instance->getName();
     }
 
@@ -211,6 +226,11 @@ class Environment
         // @BC
         if ($key === 'name') {
             return self::getName();
+        }
+
+        // @BC Return a default if instance not set
+        if (empty(self::$instance)) {
+            return $default;
         }
 
         return self::$instance->get($key, $default);
