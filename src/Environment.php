@@ -70,7 +70,7 @@ class Environment
         if (self::$instance) {
             return self::$instance;
         }
-        
+
         $envName = self::getEnvName($envGetter);
 
         return self::buildInstance(
