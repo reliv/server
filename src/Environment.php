@@ -67,6 +67,10 @@ class Environment
         callable $envGetter = null,
         $configKey = null
     ) {
+        if (self::$instance) {
+            return self::$instance;
+        }
+        
         $envName = self::getEnvName($envGetter);
 
         return self::buildInstance(
