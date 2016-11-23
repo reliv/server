@@ -26,7 +26,7 @@ class Environment
     {
         $instance = \Reliv\Server\Environment::getInstance();
 
-        if(empty($instance)) {
+        if (empty($instance)) {
             throw new \Exception('Reliv\Server\Environment MUST be build before configuration.  No instance returned');
         }
 

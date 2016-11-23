@@ -28,6 +28,22 @@ class Environment
     protected static $instance = null;
 
     /**
+     * getEnvName
+     *
+     * @param callable|null $envGetter
+     *
+     * @return mixed
+     */
+    protected static function getEnvName(callable $envGetter = null)
+    {
+        if (!$envGetter) {
+            $envGetter = new EnvVar();
+        }
+
+        return $envGetter();
+    }
+
+    /**
      * getInstance
      *
      * @return null|\Reliv\Server\Entity\Environment
@@ -38,11 +54,38 @@ class Environment
     }
 
     /**
+     * buildInstanceEnv
+     *
+     * @param string        $localConfigPath
+     * @param callable|null $envGetter
+     * @param null          $configKey
+     *
+     * @return null|Entity\Environment
+     */
+    public static function buildInstanceEnv(
+        $localConfigPath,
+        callable $envGetter = null,
+        $configKey = null
+    ) {
+        if (self::$instance) {
+            return self::$instance;
+        }
+
+        $envName = self::getEnvName($envGetter);
+
+        return self::buildInstance(
+            $localConfigPath,
+            $configKey,
+            $envName
+        );
+    }
+
+    /**
      * buildInstance
      *
-     * @param      $localConfigPath
-     * @param null $envName
-     * @param null $configKey
+     * @param string $localConfigPath
+     * @param string $envName
+     * @param string $configKey
      *
      * @return null|Entity\Environment
      * @throws \Exception
@@ -57,11 +100,11 @@ class Environment
         }
 
         if ($envName === null) {
-            $envName = getenv('ENV');
+            $envName = self::getEnvName(null);
         }
 
         if (empty($envName)) {
-            throw new \Exception('ENV is empty');
+            throw new \Exception('envName is empty');
         }
 
         if (!empty($configKey)) {
