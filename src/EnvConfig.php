@@ -18,13 +18,18 @@ class EnvConfig
     protected $path;
 
     /**
-     * EnvConfig constructor.
-     *
-     * @param string $path
+     * @var string
      */
-    public function __construct($path = 'config')
+    protected $envFolderPrefix = '';
+
+    /**
+     * @param string $path
+     * @param string $envFolderPrefix
+     */
+    public function __construct($path = 'config', $envFolderPrefix = '')
     {
         $this->path = $path;
+        $this->envFolderPrefix = $envFolderPrefix;
     }
 
     /**
@@ -47,8 +52,9 @@ class EnvConfig
     protected function getPattern()
     {
         $evn = \Reliv\Server\Environment::get('name', 'production');
+        $prefix = $this->envFolderPrefix;
 
-        return "{$this->path}/{$evn}/*.php";
+        return "{$this->path}/{$prefix}{$evn}/*.php";
     }
 
     /**
