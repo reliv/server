@@ -33,8 +33,6 @@ class EnvConfig
     }
 
     /**
-     * glob
-     *
      * @param $pattern
      *
      * @return array
@@ -51,16 +49,14 @@ class EnvConfig
      */
     protected function getPattern()
     {
-        $evn = \Reliv\Server\Environment::get('name', 'production');
+        $evn = Environment::get('name', 'production');
         $prefix = $this->envFolderPrefix;
 
         return "{$this->path}/{$prefix}{$evn}/*.php";
     }
 
     /**
-     * __invoke
-     *
-     * @return array
+     * @return \Generator
      */
     public function __invoke()
     {
