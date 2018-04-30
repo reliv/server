@@ -56,9 +56,9 @@ class Environment
     /**
      * buildInstanceEnv
      *
-     * @param string        $localConfigPath
+     * @param string $localConfigPath
      * @param callable|null $envGetter
-     * @param null          $configKey
+     * @param null $configKey
      *
      * @return null|Entity\Environment
      */
@@ -132,6 +132,11 @@ class Environment
 
         $config = include($configPath);
 
+        $overrideConfigPath = $localConfigPath . '/' . $envName . '-override.php';
+        if (file_exists($overrideConfigPath)) {
+            $config = array_replace_recursive($config, include($overrideConfigPath));
+        }
+
         // Assume default if config not found
         if (!$config[$configKey]) {
             trigger_error(
@@ -161,7 +166,7 @@ class Environment
      * build
      *
      * @param string $envName
-     * @param array  $config
+     * @param array $config
      * @param string $configPath
      *
      * @return Entity\Environment
@@ -191,8 +196,8 @@ class Environment
      * setLocalEnvironment
      *
      * @param string $localConfigPath
-     * @param null   $envName
-     * @param null   $configKey
+     * @param null $envName
+     * @param null $configKey
      *
      * @return \Reliv\Server\Entity\Environment
      * @throws \Exception
@@ -259,7 +264,7 @@ class Environment
     /**
      * get
      *
-     * @param string     $key
+     * @param string $key
      * @param null|mixed $default
      *
      * @return mixed|null
