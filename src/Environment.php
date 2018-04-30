@@ -135,7 +135,6 @@ class Environment
         $overrideConfigPath = $localConfigPath . '/' . $envName . '-override.php';
         if (file_exists($overrideConfigPath)) {
             $config = array_replace_recursive($config, include($overrideConfigPath));
-            var_dump($config);
         }
 
         // Assume default if config not found
