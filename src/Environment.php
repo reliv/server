@@ -2,8 +2,6 @@
 
 namespace Reliv\Server;
 
-use Zend\Stdlib\ArrayUtils;
-
 /**
  * Class Environment
  *
